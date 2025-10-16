@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Sales Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --text-color: #34495e;
+            --success-color: #2ecc71;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-background);
+            padding: 2rem 3rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-top: 5px solid var(--secondary-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 1.5rem;
+        }
+
+        #total-sales {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--success-color);
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sales Report</h1>
+        <p>Total calculated sales from data source:</p>
+        <div id="total-sales">...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // CSV data is embedded directly into the script as per the brief.
+            const csvData = `product,sales
+Widget A,100
+Widget B,150`;
+
+            /**
+             * Parses the CSV string, calculates the sum of the 'sales' column,
+             * and updates the DOM.
+             * @param {string} data - The CSV data as a string.
+             * @returns {number} The calculated total sales.
+             */
+            function calculateTotal(data) {
+                const lines = data.trim().split('\n');
+                
+                // Remove the header row
+                const header = lines.shift();
+                
+                let total = 0;
+                
+                lines.forEach(line => {
+                    // Split line by comma
+                    const columns = line.split(',');
+                    
+                    // Ensure we have at least 2 columns
+                    if (columns.length >= 2) {
+                        // The sales value is the second column (index 1)
+                        const salesValue = parseFloat(columns[1]);
+                        
+                        // Add to total if it's a valid number
+                        if (!isNaN(salesValue)) {
+                            total += salesValue;
+                        }
+                    }
+                });
+                
+                return total;
+            }
+
+            // Get the target element to display the result
+            const totalSalesElement = document.getElementById('total-sales');
+
+            try {
+                // Calculate the total
+                const total = calculateTotal(csvData);
+                
+                // Update the element with the calculated total
+                totalSalesElement.textContent = total;
+            } catch (error) {
+                // Display an error message if something goes wrong
+                totalSalesElement.textContent = 'Error';
+                console.error('Error processing sales data:', error);
+            }
+        });
+    </script>
+
+</body>
+</html>

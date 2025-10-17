@@ -56,7 +56,9 @@
         .metric-label {
             font-size: 1.1rem;
             color: #7f8c8d;
+            margin-top: 0;
             margin-bottom: 0.5rem;
+            font-weight: 400;
         }
 
         .metric-value {
@@ -82,13 +84,13 @@
         <h1>Sales Report</h1>
         
         <div class="metric">
-            <p class="metric-label">Total Sales</p>
-            <div id="total-sales" class="metric-value">...</div>
+            <h2 class="metric-label">Total Sales</h2>
+            <p id="total-sales" class="metric-value">...</p>
         </div>
 
         <div class="metric">
-            <p class="metric-label">Average Sale</p>
-            <div id="average-sale" class="metric-value">...</div>
+            <h2 class="metric-label">Average Sale</h2>
+            <p id="average-sale" class="metric-value">...</p>
         </div>
     </div>
 
@@ -107,28 +109,21 @@ Widget D,200`;
              * @returns {{total: number, count: number}} An object containing the total sales and entry count.
              */
             function calculateSalesMetrics(data) {
-                const lines = data.trim().split('\n');
+                const dataRows = data.trim().split('\n').slice(1);
                 
-                // Remove the header row to process only data rows.
-                const dataRows = lines.slice(1);
-                
-                let total = 0;
-                let count = 0;
-                
-                dataRows.forEach(line => {
-                    const columns = line.split(',');
+                return dataRows.reduce((metrics, row) => {
+                    const columns = row.split(',');
                     // Ensure the row has a sales column.
                     if (columns.length >= 2) {
                         const salesValue = parseFloat(columns[1]);
                         // Add to total and increment count if the value is a valid number.
                         if (!isNaN(salesValue)) {
-                            total += salesValue;
-                            count++;
+                            metrics.total += salesValue;
+                            metrics.count++;
                         }
                     }
-                });
-                
-                return { total: total, count: count };
+                    return metrics;
+                }, { total: 0, count: 0 });
             }
 
             const totalSalesElement = document.getElementById('total-sales');

@@ -10,3 +10,8 @@ Create a single-page site that reads the attached data.csv, calculates the total
 
 * **Brief**: Revise the application. In addition to the total sales, now also calculate the average sale from the original CSV data and display it in an element with the id `#average-sale`.
 * **Date**: 2025-10-17 22:09:02 IST
+
+## Round 2 Revision
+
+* **Brief**: Revise the application. In addition to the total sales, now also calculate the average sale from the original CSV data and display it in an element with the id `#average-sale`.
+* **Date**: 2025-10-17 22:39:29 IST

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Total Sales Calculator</title>
+    <title>Sales Report</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
@@ -35,40 +35,44 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
             border-top: 5px solid var(--secondary-color);
+            width: 90%;
+            max-width: 450px;
         }
 
         h1 {
             color: var(--primary-color);
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric {
+            margin-bottom: 1.5rem;
         }
 
-        p {
+        .metric:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .metric-label {
             font-size: 1.1rem;
             color: #7f8c8d;
-            margin-bottom: 0.5rem; /* Adjusted for multiple values */
-            margin-top: 1.5rem;
-        }
-        p:first-of-type { /* Adjust margin for the first p */
-            margin-top: 0;
             margin-bottom: 0.5rem;
         }
 
+        .metric-value {
+            line-height: 1;
+            margin: 0;
+            font-weight: 700;
+        }
 
         #total-sales {
-            font-size: 4rem;
-            font-weight: 700;
+            font-size: 3.5rem;
             color: var(--success-color);
-            line-height: 1;
-            margin-bottom: 0;
         }
 
         #average-sale {
             font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            line-height: 1;
-            margin-bottom: 0;
+            color: var(--info-color);
         }
     </style>
 </head>
@@ -76,16 +80,21 @@
 
     <div class="container">
         <h1>Sales Report</h1>
-        <p>Total calculated sales from data source:</p>
-        <div id="total-sales">...</div>
+        
+        <div class="metric">
+            <p class="metric-label">Total Sales</p>
+            <div id="total-sales" class="metric-value">...</div>
+        </div>
 
-        <p>Average sale from data source:</p>
-        <div id="average-sale">...</div>
+        <div class="metric">
+            <p class="metric-label">Average Sale</p>
+            <div id="average-sale" class="metric-value">...</div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // CSV data is embedded directly into the script as per the brief.
+            // CSV data is embedded directly into the script.
             const csvData = `product,sales
 Widget A,100
 Widget B,150
@@ -93,30 +102,25 @@ Widget C,75.50
 Widget D,200`;
 
             /**
-             * Parses the CSV string, calculates the sum and count of the 'sales' column,
-             * and returns them.
+             * Parses CSV data to calculate total sales and the number of sales entries.
              * @param {string} data - The CSV data as a string.
-             * @returns {{total: number, count: number}} An object containing the total sales and the count of sales entries.
+             * @returns {{total: number, count: number}} An object containing the total sales and entry count.
              */
             function calculateSalesMetrics(data) {
                 const lines = data.trim().split('\n');
                 
-                // Remove the header row
-                lines.shift();
+                // Remove the header row to process only data rows.
+                const dataRows = lines.slice(1);
                 
                 let total = 0;
                 let count = 0;
                 
-                lines.forEach(line => {
-                    // Split line by comma
+                dataRows.forEach(line => {
                     const columns = line.split(',');
-                    
-                    // Ensure we have at least 2 columns
+                    // Ensure the row has a sales column.
                     if (columns.length >= 2) {
-                        // The sales value is the second column (index 1)
                         const salesValue = parseFloat(columns[1]);
-                        
-                        // Add to total and increment count if it's a valid number
+                        // Add to total and increment count if the value is a valid number.
                         if (!isNaN(salesValue)) {
                             total += salesValue;
                             count++;
@@ -127,28 +131,28 @@ Widget D,200`;
                 return { total: total, count: count };
             }
 
-            // Get the target elements to display the results
             const totalSalesElement = document.getElementById('total-sales');
             const averageSaleElement = document.getElementById('average-sale');
 
             try {
-                // Calculate the total and count
                 const { total, count } = calculateSalesMetrics(csvData);
                 
-                // Update the total sales element
-                totalSalesElement.textContent = total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                // Calculate average
-                let average = 0;
-                if (count > 0) {
-                    average = total / count;
-                }
+                // Calculate average, avoiding division by zero.
+                const average = count > 0 ? total / count : 0;
                 
-                // Update the average sale element
-                averageSaleElement.textContent = average.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                // Format numbers for display with two decimal places.
+                const formatOptions = { 
+                    style: 'currency', 
+                    currency: 'USD',
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                };
+
+                // Update the DOM with the calculated and formatted values.
+                totalSalesElement.textContent = total.toLocaleString('en-US', formatOptions);
+                averageSaleElement.textContent = average.toLocaleString('en-US', formatOptions);
 
             } catch (error) {
-                // Display an error message if something goes wrong
                 totalSalesElement.textContent = 'Error';
                 averageSaleElement.textContent = 'Error';
                 console.error('Error processing sales data:', error);

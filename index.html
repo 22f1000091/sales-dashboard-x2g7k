@@ -14,6 +14,7 @@
             --card-background: #ffffff;
             --text-color: #34495e;
             --success-color: #2ecc71;
+            --info-color: #3498db;
         }
 
         body {
@@ -45,14 +46,29 @@
         p {
             font-size: 1.1rem;
             color: #7f8c8d;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem; /* Adjusted for multiple values */
+            margin-top: 1.5rem;
         }
+        p:first-of-type { /* Adjust margin for the first p */
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
 
         #total-sales {
             font-size: 4rem;
             font-weight: 700;
             color: var(--success-color);
             line-height: 1;
+            margin-bottom: 0;
+        }
+
+        #average-sale {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -62,6 +78,9 @@
         <h1>Sales Report</h1>
         <p>Total calculated sales from data source:</p>
         <div id="total-sales">...</div>
+
+        <p>Average sale from data source:</p>
+        <div id="average-sale">...</div>
     </div>
 
     <script>
@@ -69,21 +88,24 @@
             // CSV data is embedded directly into the script as per the brief.
             const csvData = `product,sales
 Widget A,100
-Widget B,150`;
+Widget B,150
+Widget C,75.50
+Widget D,200`;
 
             /**
-             * Parses the CSV string, calculates the sum of the 'sales' column,
-             * and updates the DOM.
+             * Parses the CSV string, calculates the sum and count of the 'sales' column,
+             * and returns them.
              * @param {string} data - The CSV data as a string.
-             * @returns {number} The calculated total sales.
+             * @returns {{total: number, count: number}} An object containing the total sales and the count of sales entries.
              */
-            function calculateTotal(data) {
+            function calculateSalesMetrics(data) {
                 const lines = data.trim().split('\n');
                 
                 // Remove the header row
-                const header = lines.shift();
+                lines.shift();
                 
                 let total = 0;
+                let count = 0;
                 
                 lines.forEach(line => {
                     // Split line by comma
@@ -94,28 +116,41 @@ Widget B,150`;
                         // The sales value is the second column (index 1)
                         const salesValue = parseFloat(columns[1]);
                         
-                        // Add to total if it's a valid number
+                        // Add to total and increment count if it's a valid number
                         if (!isNaN(salesValue)) {
                             total += salesValue;
+                            count++;
                         }
                     }
                 });
                 
-                return total;
+                return { total: total, count: count };
             }
 
-            // Get the target element to display the result
+            // Get the target elements to display the results
             const totalSalesElement = document.getElementById('total-sales');
+            const averageSaleElement = document.getElementById('average-sale');
 
             try {
-                // Calculate the total
-                const total = calculateTotal(csvData);
+                // Calculate the total and count
+                const { total, count } = calculateSalesMetrics(csvData);
                 
-                // Update the element with the calculated total
-                totalSalesElement.textContent = total;
+                // Update the total sales element
+                totalSalesElement.textContent = total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                // Calculate average
+                let average = 0;
+                if (count > 0) {
+                    average = total / count;
+                }
+                
+                // Update the average sale element
+                averageSaleElement.textContent = average.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
             } catch (error) {
                 // Display an error message if something goes wrong
                 totalSalesElement.textContent = 'Error';
+                averageSaleElement.textContent = 'Error';
                 console.error('Error processing sales data:', error);
             }
         });
